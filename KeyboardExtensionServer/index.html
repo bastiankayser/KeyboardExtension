@@ -3,7 +3,21 @@
   <head>
     <title>WebSocket Echo Test</title>
     <script type="text/javascript" >
-        var socket = new WebSocket("ws://localhost:9010/")
+        var socket = new WebSocket("ws://localhost:9010/");
+        socket.onopen = function () {
+            connection.send('Ping'); // Send the message 'Ping' to the server
+        };
+
+        // Log errors
+        socket.onerror = function (error) {
+            console.log('WebSocket Error ' + error);
+        };
+
+        // Log messages from the server
+        socket.onmessage = function (e) {
+            console.log('Server: ' + e.data);
+            document.body.innerHTML = e.data;
+        };
     </script>
   </head>
   <body>
