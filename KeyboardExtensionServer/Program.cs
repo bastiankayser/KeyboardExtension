@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Fleck;
-
+using static KeyboardExtensionServer.WindowListener;
 
 namespace KeyboardExtensionServer
 {
@@ -22,20 +22,33 @@ namespace KeyboardExtensionServer
            
         }
 
+        private static UpdateProgramName SocketSend;
+        private static UpdateProgramName SocketSendCeption;
+
         static void Main(string[] args)
         {
 
             Program prog = new Program();
-            
+
             var server = new WebSocketServer("ws://127.0.0.1:9010");
             server.Start(socket =>
             {
                 socket.OnOpen = () => Console.WriteLine("Open!");
                 socket.OnClose = () => Console.WriteLine("Close!");
                 socket.OnMessage = message => socket.Send(message);
-                WindowListener.Init((programTitle) => socket.Send(programTitle));
+                SocketSend = (programTitle) => socket.Send(programTitle);
             });
-            
+
+            SocketSendCeption = (txt) =>
+            {
+                if (SocketSend != null)
+                {
+                    SocketSend(txt);
+                }
+            };
+
+            WindowListener.Init(SocketSendCeption);
+
             using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://localhost:9000"))
             {
                 Console.WriteLine("Press [enter] to quit...");

@@ -22,7 +22,7 @@ namespace KeyboardExtensionServer
             _callBackUpdateProgramName = callbackFunction;
             IntPtr m_hhook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT);
         }
-        
+
         delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
         [DllImport("user32.dll")]
@@ -42,21 +42,29 @@ namespace KeyboardExtensionServer
 
         private static string GetActiveWindowTitle() //STATIC
         {
-            const int nChars = 256;
-            IntPtr handle = IntPtr.Zero;
-            StringBuilder Buff = new StringBuilder(nChars);
-            handle = GetForegroundWindow();
-            uint procId = 0;
-            GetWindowThreadProcessId(handle, out procId);
-            var proc = Process.GetProcessById((int)procId);
-            var mainModule = proc.MainModule;
-            return mainModule.ModuleName;
+            try
+            {
+                const int nChars = 256;
+                IntPtr handle = IntPtr.Zero;
+                StringBuilder Buff = new StringBuilder(nChars);
+                handle = GetForegroundWindow();
+                uint procId = 0;
+                GetWindowThreadProcessId(handle, out procId);
+                var proc = Process.GetProcessById((int)procId);
+                var mainModule = proc.MainModule;
+                return mainModule.ModuleName;
 
-            //if (GetWindowText(handle, Buff, nChars) > 0)
-            //{
-            //    return Buff.ToString();
-            //}
-            //return null;
+                //if (GetWindowText(handle, Buff, nChars) > 0)
+                //{
+                //    return Buff.ToString();
+                //}
+                //return null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return e.Message;
+            }
         }
 
         public static void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime) //STATIC
