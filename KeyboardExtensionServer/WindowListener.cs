@@ -8,12 +8,18 @@ using System.Threading.Tasks;
 
 namespace KeyboardExtensionServer
 {
-    class WindowListener
+    static class WindowListener
     {
         static WinEventDelegate dele = null; //STATIC
-        public WindowListener()
+
+        public delegate void UpdateProgramName(string programName);
+
+        private static UpdateProgramName _callBackUpdateProgramName;
+
+        public static void Init(UpdateProgramName callbackFunction)
         {
             dele = new WinEventDelegate(WinEventProc);
+            _callBackUpdateProgramName = callbackFunction;
             IntPtr m_hhook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT);
         }
         
@@ -55,8 +61,9 @@ namespace KeyboardExtensionServer
 
         public static void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime) //STATIC
         {
+            var activeWindowTitle = GetActiveWindowTitle();
+            _callBackUpdateProgramName(activeWindowTitle);
 
-            Console.WriteLine(GetActiveWindowTitle());
         }
     }
 }

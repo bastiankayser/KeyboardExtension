@@ -15,13 +15,11 @@ namespace KeyboardExtensionServer
 {
     class Program
     {
-        private WindowListener windowListener;
         string myFolder = @"D:\temp\testwebsite";
         
-
         public Program()
         {
-            windowListener = new WindowListener();
+           
         }
 
         static void Main(string[] args)
@@ -35,8 +33,9 @@ namespace KeyboardExtensionServer
                 socket.OnOpen = () => Console.WriteLine("Open!");
                 socket.OnClose = () => Console.WriteLine("Close!");
                 socket.OnMessage = message => socket.Send(message);
+                WindowListener.Init((programTitle) => socket.Send(programTitle));
             });
-
+            
             using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://localhost:9000"))
             {
                 Console.WriteLine("Press [enter] to quit...");
