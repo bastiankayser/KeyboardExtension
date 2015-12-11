@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Fleck;
 
 
 namespace KeyboardExtensionServer
@@ -16,6 +17,7 @@ namespace KeyboardExtensionServer
     {
         private WindowListener windowListener;
         string myFolder = @"D:\temp\testwebsite";
+        
 
         public Program()
         {
@@ -26,15 +28,23 @@ namespace KeyboardExtensionServer
         {
 
             Program prog = new Program();
+            
+            var server = new WebSocketServer("ws://localhost:9010");
+            server.Start(socket =>
+            {
+                socket.OnOpen = () => Console.WriteLine("Open!");
+                socket.OnClose = () => Console.WriteLine("Close!");
+                socket.OnMessage = message => socket.Send(message);
+            });
+
             using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://localhost:9000"))
             {
                 Console.WriteLine("Press [enter] to quit...");
                 Console.ReadLine();
             }
-            
+
             Application.Run(); //<----
             Console.ReadKey();
-            
         }
 
 

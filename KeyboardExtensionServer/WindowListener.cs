@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -30,22 +31,31 @@ namespace KeyboardExtensionServer
         [DllImport("user32.dll")]
         static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
         private static string GetActiveWindowTitle() //STATIC
         {
             const int nChars = 256;
             IntPtr handle = IntPtr.Zero;
             StringBuilder Buff = new StringBuilder(nChars);
             handle = GetForegroundWindow();
+            uint procId = 0;
+            GetWindowThreadProcessId(handle, out procId);
+            var proc = Process.GetProcessById((int)procId);
+            var mainModule = proc.MainModule;
+            return mainModule.ModuleName;
 
-            if (GetWindowText(handle, Buff, nChars) > 0)
-            {
-                return Buff.ToString();
-            }
-            return null;
+            //if (GetWindowText(handle, Buff, nChars) > 0)
+            //{
+            //    return Buff.ToString();
+            //}
+            //return null;
         }
 
         public static void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime) //STATIC
         {
+
             Console.WriteLine(GetActiveWindowTitle());
         }
     }
