@@ -22,7 +22,7 @@
             for (var i = 0; i < data.actions.length; i++) {
                 var action = data.actions[i];
                 var actDiv = document.createElement("div");
-                actDiv.innerText = action;
+                actDiv.innerHTML = action;
                 actDiv.onclick = function (e) {
                     socket.send(e.srcElement.innerText);
                 };
