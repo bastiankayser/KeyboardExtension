@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>WebSocket Echo Test</title>
-    <script type="text/javascript" >
+    <script type="text/javascript">
         var socket = new WebSocket("ws://localhost:9010/");
         //socket.onopen = function () {
         //    connection.send('Ping'); // Send the message 'Ping' to the server
@@ -13,15 +13,30 @@
             console.log('WebSocket Error: ' + error);
         };
 
+        var updatePage = function (data) {
+            document.body.innerHTML = "";
+            var heading = document.createElement("h1");
+            heading.textContent = data.title;
+            document.body.appendChild(heading);
+            for (var i = 0; i < data.actions.length; i++) {
+                var action = data.actions[i];
+                var actDiv = document.createElement("div");
+                actDiv.innerText = action;
+                actDiv.onclick = function () {
+                    socket.send(action);
+                };
+                document.body.appendChild(actDiv);
+            }
+        };
+
         // Log messages from the server
         socket.onmessage = function (e) {
-            //console.log('Server: ' + e.data);
-            document.body.innerHTML = e.data;
+            updatePage(e.data);
         };
     </script>
-  </head>
-  <body>
+</head>
+<body>
     <h2>WebSocket Echo Test</h2>
     <div id="output"></div>
-  </body>
+</body>
 </html>
