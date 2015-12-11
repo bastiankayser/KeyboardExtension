@@ -14,6 +14,7 @@
         };
 
         var updatePage = function (data) {
+            
             document.body.innerHTML = "";
             var heading = document.createElement("h1");
             heading.textContent = data.title;
@@ -22,8 +23,8 @@
                 var action = data.actions[i];
                 var actDiv = document.createElement("div");
                 actDiv.innerText = action;
-                actDiv.onclick = function () {
-                    socket.send(action);
+                actDiv.onclick = function (e) {
+                    socket.send(e.srcElement.innerText);
                 };
                 document.body.appendChild(actDiv);
             }
@@ -31,7 +32,7 @@
 
         // Log messages from the server
         socket.onmessage = function (e) {
-            updatePage(e.data);
+            updatePage(JSON.parse(e.data));
         };
     </script>
 </head>
