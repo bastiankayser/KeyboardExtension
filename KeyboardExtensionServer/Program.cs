@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading;
@@ -16,10 +19,10 @@ namespace KeyboardExtensionServer
     class Program
     {
         string myFolder = @"D:\temp\testwebsite";
-        
+        private static DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(JsonObject));
         public Program()
         {
-           
+
         }
 
         private static UpdateProgramName SocketSend;
@@ -35,7 +38,8 @@ namespace KeyboardExtensionServer
             {
                 socket.OnOpen = () => Console.WriteLine("Open!");
                 socket.OnClose = () => Console.WriteLine("Close!");
-                socket.OnMessage = message => socket.Send(message);
+                //socket.OnMessage = message => socket.Send(message);
+                socket.OnMessage = message => Console.WriteLine(message);
                 SocketSend = (programTitle) => socket.Send(programTitle);
             });
 
@@ -43,12 +47,13 @@ namespace KeyboardExtensionServer
             {
                 if (SocketSend != null)
                 {
-                    SocketSend(txt);
+                    var jsonString = ToJsonString(txt, new string[] {"test", "test2"});
+                    SocketSend(jsonString);
                 }
             };
 
             WindowListener.Init(SocketSendCeption);
-            
+
             Task.Factory.StartNew(StartNewWebserver);
 
             Application.Run(); //<----
@@ -65,8 +70,33 @@ namespace KeyboardExtensionServer
             }
         }
 
-        
+        private static string ToJsonString(string title, string[] actions)
+        {
+            var jsonObject = new JsonObject();
+            jsonObject.title = title;
+            jsonObject.actions = actions;
+            using (MemoryStream textStream = new MemoryStream())
+            {
+
+                jsonSerializer.WriteObject(textStream, jsonObject);
+                return Encoding.Default.GetString(textStream.ToArray());
+            }
+
+        }
+
+        [DataContract]
+        private class JsonObject
+        {
+            [DataMember]
+            public string title;
+            [DataMember]
+            public string[] actions;
+        }
+
+
     }
+
+
 
 
 }
