@@ -15,30 +15,26 @@ namespace KeyboardExtensionServer
     class Program
     {
         private WindowListener windowListener;
-        private SimpleHTTPServer simpleHttpServer;
         string myFolder = @"D:\temp\testwebsite";
 
         public Program()
         {
             windowListener = new WindowListener();
-
-            simpleHttpServer = new SimpleHTTPServer(myFolder,8008);
         }
 
         static void Main(string[] args)
         {
 
+            Program prog = new Program();
             using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://localhost:9000"))
             {
                 Console.WriteLine("Press [enter] to quit...");
                 Console.ReadLine();
             }
-
-            Program prog = new Program();
-
+            
             Application.Run(); //<----
             Console.ReadKey();
-            //prog.simpleHttpServer.Stop();
+            
         }
 
 
