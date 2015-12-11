@@ -22,17 +22,17 @@ namespace KeyboardExtensionServer
         {
             windowListener = new WindowListener();
 
-            //simpleHttpServer = new SimpleHTTPServer(myFolder,8008);
+            simpleHttpServer = new SimpleHTTPServer(myFolder,8008);
         }
 
         static void Main(string[] args)
         {
 
-            //using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://localhost:9000"))
-            //{
-            //    Console.WriteLine("Press [enter] to quit...");
-            //    Console.ReadLine();
-            //}
+            using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://localhost:9000"))
+            {
+                Console.WriteLine("Press [enter] to quit...");
+                Console.ReadLine();
+            }
 
             Program prog = new Program();
 
