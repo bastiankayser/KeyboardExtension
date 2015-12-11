@@ -48,19 +48,27 @@ namespace KeyboardExtensionServer
             };
 
             WindowListener.Init(SocketSendCeption);
-
-            using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://localhost:9000"))
-            {
-                Console.WriteLine("Press [enter] to quit...");
-                Console.ReadLine();
-            }
+            
+            Task.Factory.StartNew(StartNewWebserver);
 
             Application.Run(); //<----
             Console.ReadKey();
         }
 
 
+        private static void StartNewWebserver()
+        {
+            using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://localhost:9000"))
+            {
+                Console.WriteLine("Press [enter] to quit...");
+                Console.ReadLine();
+            }
+        }
+
+        
     }
+
+
 }
 
 
