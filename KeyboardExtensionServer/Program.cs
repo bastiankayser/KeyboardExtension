@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
@@ -20,6 +22,8 @@ namespace KeyboardExtensionServer
     {
         string myFolder = @"D:\temp\testwebsite";
         private static DataContractJsonSerializer jsonSerializer = new DataContractJsonSerializer(typeof(JsonObject));
+
+        private static string localIP = GetLocalIPAddress();
         public Program()
         {
 
@@ -32,8 +36,8 @@ namespace KeyboardExtensionServer
         {
 
             Program prog = new Program();
-
-            var server = new WebSocketServer("ws://127.0.0.1:9010");
+            
+            var server = new WebSocketServer("ws://"+ localIP + ":9010");
             server.Start(socket =>
             {
                 socket.OnOpen = () => Console.WriteLine("Open!");
@@ -60,10 +64,23 @@ namespace KeyboardExtensionServer
             Console.ReadKey();
         }
 
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("Local IP Address Not Found!");
+        }
+
 
         private static void StartNewWebserver()
         {
-            using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://localhost:9000"))
+            using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://"+localIP+":9000"))
             {
                 Console.WriteLine("Press [enter] to quit...");
                 Console.ReadLine();
