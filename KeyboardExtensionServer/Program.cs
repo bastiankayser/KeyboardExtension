@@ -27,7 +27,7 @@ namespace KeyboardExtensionServer
 
             Program prog = new Program();
             
-            var server = new WebSocketServer("ws://localhost:9010");
+            var server = new WebSocketServer("ws://127.0.0.1:9010");
             server.Start(socket =>
             {
                 socket.OnOpen = () => Console.WriteLine("Open!");
