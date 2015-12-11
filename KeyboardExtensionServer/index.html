@@ -26,7 +26,6 @@
                 actDiv.onclick = function (e) {
                     socket.send(e.srcElement.innerText);
                 };
-                actDiv.ontouchend = actDiv.onclick;
                 document.body.appendChild(actDiv);
             }
         };

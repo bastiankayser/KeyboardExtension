@@ -36,9 +36,9 @@ namespace KeyboardExtensionServer
 
             Program prog = new Program();
 
-            GetLocalIPAddress().TakeWhile((s) => !String.IsNullOrEmpty(s)).ToList().ForEach(ip =>
-              {
-                  var server = new WebSocketServer("ws://" + ip + ":9010");
+            //GetLocalIPAddress().TakeWhile((s) => !String.IsNullOrEmpty(s)).ToList().ForEach(ip =>
+             // {
+                  var server = new WebSocketServer("ws://0.0.0.0:9010");
                   server.Start(socket =>
                   {
                       socket.OnOpen = () => Console.WriteLine("Open!");
@@ -47,7 +47,7 @@ namespace KeyboardExtensionServer
                       socket.OnMessage = message => Console.WriteLine(message);
                       SocketSend += (programTitle) => socket.Send(programTitle);
                   });
-              });
+    //          });
 
             SocketSendCeption = (txt) =>
             {
@@ -77,6 +77,7 @@ namespace KeyboardExtensionServer
                     yield return ip.ToString();
                 }
             }
+            yield return "localhost";
             yield break;
             throw new Exception("Local IP Address Not Found!");
         }
@@ -84,14 +85,33 @@ namespace KeyboardExtensionServer
 
         private static void StartNewWebserver()
         {
-            GetLocalIPAddress().TakeWhile(s => !String.IsNullOrEmpty(s)).ToList().ForEach(ip =>
-              {
-                  using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://" + ip + ":9000"))
-                  {
-                      Console.WriteLine("Press [enter] to quit...");
-                      Console.ReadLine();
-                  }
-              });
+            HttpListener listener = new HttpListener();
+            listener.Prefixes.Add("http://*:9050/");
+            listener.Start();
+            listener.BeginGetContext(OnNewConnect, listener);
+
+            //GetLocalIPAddress().TakeWhile(s => !String.IsNullOrEmpty(s)).ToList().ForEach(ip =>
+            //  {
+            //      Task.Factory.StartNew(ipI =>
+            //      {
+            //          using (Microsoft.Owin.Hosting.WebApp.Start<Startup>("http://" + ipI + ":9000"))
+            //          {
+            //              Console.WriteLine("Press [enter] to quit...");
+            //              Console.ReadLine();
+            //          }
+            //      }, ip);
+            //  });
+        }
+
+        private static void OnNewConnect(IAsyncResult ar)
+        {
+            var listener = (HttpListener)ar.AsyncState;
+            listener.BeginGetContext(OnNewConnect, listener);
+            var context = listener.EndGetContext(ar);
+            using(var writer = new StreamWriter(context.Response.OutputStream))
+            {
+                writer.WriteLine(File.ReadAllText("Index.html"));
+            }
         }
 
         private static string ToJsonString(string title, string[] actions)
